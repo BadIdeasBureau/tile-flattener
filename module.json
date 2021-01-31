@@ -1,0 +1,42 @@
+{
+  "name": "module",
+  "title": "New Module",
+  "description": "",
+  "version": "This is auto replaced",
+  "library": "false",
+  "manifestPlusVersion": "1.0.0",
+  "minimumCoreVersion": "0.7.5",
+  "compatibleCoreVersion": "0.7.9",
+  "authors": [
+    {
+      "name": "BadIdeasBureau",
+      "url": "https://github.com/BadIdeasBureau",
+      "discord": "BadIdeasBureau#7024"
+    }
+  ],
+  "dependencies": [
+
+  ],
+  "conflicts": [
+    
+  ],
+  "esmodules": [
+    "/scripts/module.js"
+  ],
+  "scripts": [
+    
+  ],
+  "styles": [
+    
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "url": "This is auto replaced",
+  "manifest": "This is auto replaced",
+  "download": "This is auto replaced",
+}
