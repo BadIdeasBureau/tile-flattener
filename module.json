@@ -1,6 +1,6 @@
 {
-  "name": "module",
-  "title": "New Module",
+  "name": "tile-flattener",
+  "title": "Tile Flattener",
   "description": "",
   "version": "This is auto replaced",
   "library": "false",
@@ -38,5 +38,5 @@
   ],
   "url": "This is auto replaced",
   "manifest": "This is auto replaced",
-  "download": "This is auto replaced",
+  "download": "This is auto replaced"
 }
