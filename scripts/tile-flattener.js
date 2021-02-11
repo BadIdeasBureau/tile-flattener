@@ -7,7 +7,9 @@
 
 //Button Maker
 
-function getSceneControlButtons(buttons) {
+Hooks.on("getSceneControlButtons", addFlattenerButton);
+
+function addFlattenerButton(buttons) {
 	let tilesButton = buttons.find(b => b.name == "tiles")
 	if (tilesButton) {
 		tilesButton.tools.push({
@@ -21,14 +23,44 @@ function getSceneControlButtons(buttons) {
 	}
 };
 
-async function canvasToContainer() {
+async function flattenTilePrompt(){
+	let d = new Dialog({
+		title: "Test Dialog",
+		content: "<p>You must choose either Option 1, or Option 2</p>", //should include HTML elements for the various settings
+		buttons: {
+		 one: {
+		  icon: '<i class="fas fa-check"></i>',
+		  label: "Option One",
+		  callback: (html) => console.log("thing")//parse settings from the HTML, assemble into a layerSettings object, and then pass to flattenTiles
+		 },
+		 two: {
+		  icon: '<i class="fas fa-times"></i>',
+		  label: "Option Two",
+		  callback: () => console.log("Chose Two")
+		 }
+		},
+		default: "two",
+		render: html => console.log("Register interactivity in the rendered dialog"),
+		close: html => console.log("This always is logged no matter which option is chosen")
+	   });
+	   d.render(true);
+}
+
+async function flattenTiles(layerSettings) {
+	let layers = [];
+	if(layerSettings.background) layers.push("background");
+	if(layerSettings.tiles) layers.push("tiles");
+	if(layerSettings.drawings) layers.push("drawings")
 	container = new PIXI.Container();
 	const layers = ["background", "tiles", "drawings"];
-
 	for (let layer of layers) {
    		container.addChild(canvas[layer]);
 	}
-	return container;
+	// filtering:  https://discord.com/channels/732325252788387980/732325252788387983/809475839707971594
+	//short version:  canvas[layer].objects.children, and then mess with that array (don't use .delete(), since that actually deletes the tile from the database)
+	//or set the "visible" boolean to false within each child.
+	//Advantage of array method is that there is then an array of all tiles which have been flattened, which can then be used with canvas[layer].deleteMany([ids])
+	containerToBlobAndUpload(container, filename);
 };
 
 async function containerToBlobAndUpload(container, filename){
