@@ -1,3 +1,11 @@
 {
-    "MODULE.hello": "hello"
+    "TILE-FLATTENER.Button": "Tile Flattener",
+
+    "TILE-FLATTENER.Dialog.Content": "Which images would you like to include in the new background?",
+    "TILE-FLATTENER.Dialog.Title": "Tile Flattener",
+    "TILE-FLATTENER.Dialog.Button": "Flatten",
+
+    "TILE-FLATTENER.Settings.HiddenTiles": "Include hidden tiles?",
+    "TILE-FLATTENER.Settings.HiddenDrawings": "Include hidden drawings?",
+    "TILE-FLATTENER.Settings.deleteFlattened": "Delete flattened tiles/drawings after flattening?"
 }

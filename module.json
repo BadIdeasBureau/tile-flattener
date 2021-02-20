@@ -1,7 +1,7 @@
 {
   "name": "tile-flattener",
   "title": "Tile Flattener",
-  "description": "",
+  "description": "Takes all tiles and drawings on a scene, and merges them into the background image, then sets that image as the new background.",
   "version": "This is auto replaced",
   "library": "false",
   "manifestPlusVersion": "1.0.0",
