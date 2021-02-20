@@ -53,7 +53,7 @@ function addFlattenerButton(buttons) {
 };
 
 async function flattenTilePrompt(){ //displays the prompt to get settings for this flattening
-	const autofilename = canvas.scene.name.toLowerCase().replaceAll(/[\/\?<>\\:\*\|":]/g, '') + "-" + canvas.scene._id; //scene name - scene ID (sanitised for filename stuff)
+	const autofilename = canvas.scene.name.toLowerCase().replace(/[\/\?<>\\:\*\|":]/g, '') + "-" + canvas.scene._id; //scene name - scene ID (sanitised for filename stuff)
 	const content = 	"\n"+ 
 						game.i18n.localize('TILE-FLATTENER.Dialog.Content') +
 						"\n <div class='form-group dialog layer-settings'>" +
@@ -76,7 +76,7 @@ async function flattenTilePrompt(){ //displays the prompt to get settings for th
 				const tiles = html.find(".layer-settings.dialog [name='tiles']")[0].checked;
 				const drawings = html.find(".layer-settings.dialog [name='drawings']")[0].checked;
 				const layerSettings = {background: background, tiles: tiles, drawings: drawings};
-				const filename = html.find(".layer-settings.dialog [name='filename']")[0].value;
+				let filename = html.find(".layer-settings.dialog [name='filename']")[0].value;
 				if (!filename) {filename=autofilename} else {filename.replaceAll(/[\/\?<>\\:\*\|":]/g, '')};
 				filename=filename+".webp"
 				flattenTiles(layerSettings, filename)
@@ -94,7 +94,7 @@ async function flattenTiles(layerSettings, filename) { //Do the actual flattenin
 	if(layerSettings.background) layers.push("background");
 	if(layerSettings.tiles) layers.push("tiles");
 	if(layerSettings.drawings) layers.push("drawings")
-	container = new PIXI.Container();
+	let container = new PIXI.Container();
 	for (let layer of layers) {
    		await container.addChild(canvas[layer]);
 	}
@@ -102,10 +102,10 @@ async function flattenTiles(layerSettings, filename) { //Do the actual flattenin
 	//filtering:
 	let tiles = container.children.find(a=>a.name==="TilesLayer")?.objects?.children;
 	tiles = tiles?.filter(filterTilesLayer); //do the filtering on the tiles layer
-	const tileIDs = tiles.map(t=> t.id) //grab ids of all flattened tiles
+	const tileIDs = tiles?.map(t=> t.id) //grab ids of all flattened tiles
 	let drawings = container.children.find(a=>a.name==="DrawingsLayer")?.objects?.children;
-	drawings = drawings?.filter(filterDrawingsLayer);
-	const drawIDs = drawings.map(d=> d.id); //grab IDs of all flattened drawings
+	drawings = drawings?.filter(filterDrawingsLayer); //doesn't seem to actually filter properly.  Will need to reattempt with the isVisible method suggested by Calego, or rethink all this
+	const drawIDs = drawings?.map(d=> d.id); //grab IDs of all flattened drawings
 
 	// filtering:  https://discord.com/channels/732325252788387980/732325252788387983/809475839707971594
 	//short version:  canvas[layer].objects.children, and then mess with that array (don't use .delete(), since that actually deletes the tile from the database)
@@ -113,23 +113,23 @@ async function flattenTiles(layerSettings, filename) { //Do the actual flattenin
 	//Advantage of array method is that there is then an array of all tiles which have been flattened, which can then be used with canvas[layer].deleteMany([ids])
 	await containerToBlobAndUpload(container, filename);
 	await canvas.scene.update({img: getUploadPath() + "/" + filename}) //set image as scene background
-	canvas = new Canvas(); //re-initialise the canvas, because we've ripped most of it out
-	canvas.draw(); //redraw the new canvas
+	await canvas.tearDown();
+	await game.initializeCanvas(); //re-initialise the canvas, because we've ripped most of it out
 	if(game.settings.get("tile-flattener","deleteFlattened")){
-		canvas.tiles.deleteMany(tileIDs);
-		canvas.drawings.deleteMany(drawIDs);
+		if(tileIDs?.length > 0) canvas.tiles.deleteMany(tileIDs);
+		if(drawIDs?.length > 0) canvas.drawings.deleteMany(drawIDs);
 	}
 
 };
 
-async function filterTilesLayer(tile){ //function to pass to array.filter for the tile array - add additional checks/settings here. Should return true for tiles to keep, false for tiles to drop.
+function filterTilesLayer(tile){ //function to pass to array.filter for the tile array - add additional checks/settings here. Should return true for tiles to keep, false for tiles to drop.
 	if(tile.data.hidden && !game.settings.get("tile-flattener","hiddenTiles")){
 		return false;
 	}
 	return true;
 }
 
-async function filterDrawingsLayer(drawing){ //function to pass to array.filter for the drawings array - add additional checks/settings here. Should return true for drawings to keep, false for drawings to drop.
+function filterDrawingsLayer(drawing){ //function to pass to array.filter for the drawings array - add additional checks/settings here. Should return true for drawings to keep, false for drawings to drop.
 	if(drawing.data.hidden && !game.settings.get("tile-flattener","hiddenDrawings")){
 		return false;
 	}
@@ -137,7 +137,7 @@ async function filterDrawingsLayer(drawing){ //function to pass to array.filter 
 }
 
 async function containerToBlobAndUpload(container, filename){
-	canvas.app.renderer.extract.canvas(container).toBlob(function (b) {
+	await canvas.app.renderer.extract.canvas(container).toBlob(async function (b) {
 		await uploadToFoundry(b, filename);
 	}, "image/webp");
 }
