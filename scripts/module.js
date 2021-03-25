@@ -1,6 +1,9 @@
 
 
 //TODO:  Module compatibility
+//TODO:  Refactor to use inbuilt scene.createThumbnail method.
+// canvas.scene.createThumbnail({img: null, width: canvas.scene.data.width, height:canvas.scene.data.height}).then(t => fetch(t.thumb)).then(res => res.blob()).then(blob => uploadToFoundry(blob, filename))
+// However, this is bugged in core, so wait for response on bug report (or try to work out why and fix it, but.... eeeeh).
 //Copy to Teech#7953 when alpha ready
 
 Hooks.on("init", initHook)
